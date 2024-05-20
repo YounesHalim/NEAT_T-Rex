@@ -70,6 +70,7 @@ class TRex(pygame.sprite.Sprite):
         self.rect.y = self.fall_stop
 
     def start_animation(self):
+        self.rect.move_ip(self.vel)
         if self.rect.x >= self.rect.width:
             self.rect.x = self.rect.width
 
