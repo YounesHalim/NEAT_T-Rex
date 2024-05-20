@@ -3,5 +3,6 @@ from enum import IntEnum, auto
 
 class Layer(IntEnum):
     BACKGROUND = auto()
+    CACTUS = auto()
     DINO = auto()
-    OBSTACLE = auto()
+    UI = auto()
