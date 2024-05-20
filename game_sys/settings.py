@@ -3,6 +3,8 @@ from enum import IntEnum
 
 
 class GameSettings(IntEnum):
-    SCREEN_WIDTH = 700
-    SCREEN_HEIGHT = 800
+    SCREEN_WIDTH = 800
+    SCREEN_HEIGHT = 400
     FPS = 60
+    GRAVITY = 1.05
+
