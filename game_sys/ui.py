@@ -1,5 +1,6 @@
 import pygame
 import pygame.font
+from pygame._sprite import LayeredUpdates
 from pygame.sprite import AbstractGroup
 
 from game_sys.layer import Layer
@@ -7,7 +8,7 @@ from game_sys.settings import GameSettings
 
 
 class UI(pygame.sprite.Sprite):
-    def __init__(self, *groups: AbstractGroup, alive: list, generation: int):
+    def __init__(self, *groups: AbstractGroup | LayeredUpdates, alive: list, generation: int):
         self._layer = Layer.UI
         self._font = pygame.font.Font(pygame.font.get_default_font(), 15)
         self.alive = len(alive)
