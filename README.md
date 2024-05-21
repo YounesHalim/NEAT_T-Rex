@@ -7,6 +7,10 @@ An AI that plays T-Rex Game! Using the NEAT (NeuroEvolution of Augmenting Topolo
 
 
 
+https://github.com/YounesHalim/NEAT_T-Rex-Game/assets/97858052/383d8215-f9c1-4d2f-be7c-8acab2349eb4
+
+
+
 ## Run Locally
 
 
