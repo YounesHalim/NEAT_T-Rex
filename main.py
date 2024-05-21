@@ -10,13 +10,6 @@ from game_sys.game_sys import Game
 from game_sys.settings import GameSettings
 from game_sys.ui import UI
 
-
-def get_distance(first_pos, second_pos):
-    dx = first_pos[0] - second_pos[0]
-    dy = first_pos[1] - second_pos[1]
-    return math.sqrt(dx ** 2 + dy ** 2)
-
-
 gen = -1
 
 
@@ -38,27 +31,28 @@ def eval_genomes(genomes, configuration) -> None:
 
     while True:
         events = pygame.event.get()
-        game.draw_cactus()
+        game.draw_cactus(ge)
         for event in events:
             if (event.type == pygame.QUIT
                     or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)):
                 pygame.quit()
                 break
 
-        ui.update_ui(alive=dinosaurs, generation=gen)
-
         if not dinosaurs:
             break
 
-        cacti_index = 0
+        cactus_index = 0
         if dinosaurs:
             if len(cacti) > 1 and dinosaurs[0].rect.x > cacti[0].rect.x + cacti[0].image.get_width():
-                cacti_index = 1
+                cactus_index = 1
 
-        ui.velocity = abs(cacti[cacti_index].vel.x)
+        ui.velocity = abs(cacti[cactus_index].vel.x)
         for x, trex in enumerate(dinosaurs):
-            ge[x].fitness += 1
-            obstacle = cacti[cacti_index]
+            ge[x].fitness += .05
+            obstacle = cacti[cactus_index]
+
+            get_distance = lambda pos1, pos2: math.sqrt(
+                (trex.rect.x - obstacle.rect.midtop[0]) ** 2 + (trex.rect.y - obstacle.rect.midtop[1]) ** 2)
             output = nets[x].activate(
                 (
                     trex.rect.y,
@@ -69,7 +63,6 @@ def eval_genomes(genomes, configuration) -> None:
             if output[0] > .5:
                 trex.jump()
 
-        add_cacti = False
         for cactus in cacti:
             for x, trex in enumerate(dinosaurs):
                 if spritecollide(trex, pygame.sprite.Group(cactus), False, collide_mask):
@@ -78,14 +71,10 @@ def eval_genomes(genomes, configuration) -> None:
                     dinosaurs.pop(x)
                     nets.pop(x)
                     ge.pop(x)
+                if cactus.rect.left < 0:
+                    cactus.passed = True
 
-                if cactus.rect.left == 0:
-                    add_cacti = True
-
-        if add_cacti:
-            ui.score += 1
-            for genome in ge:
-                genome.fitness += 5
+        ui.update_ui(alive=dinosaurs, generation=gen)
 
         screen.fill(0)
         sprites.draw(screen)
