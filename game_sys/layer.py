@@ -6,3 +6,4 @@ class Layer(IntEnum):
     CACTUS = auto()
     DINO = auto()
     UI = auto()
+    GROUND = auto()
