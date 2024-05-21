@@ -1,19 +1,21 @@
 import pygame.sprite
 from pygame import Vector2
-from pygame._sprite import AbstractGroup
+from pygame._sprite import AbstractGroup, LayeredUpdates
 
 from game_objects.cactus import Cactus
+from game_objects.ground import Ground
 from game_sys import assets
 from game_sys.layer import Layer
 from game_sys.settings import GameSettings
 
 
 class TRex(pygame.sprite.Sprite):
-    def __init__(self, *groups: AbstractGroup):
+    def __init__(self, *groups: AbstractGroup | LayeredUpdates):
         self._layer = Layer.DINO
+        self.ground: Ground = groups[0].get_sprites_from_layer(Layer.GROUND)[0]
         self.index = 0
-        self.gravity = GameSettings.GRAVITY.value
-        self.dy = 3
+        self.gravity = .9
+        self.dy = 11
         self.on_ground = True
         self.is_jumping = False
         self.is_falling = False
@@ -23,29 +25,25 @@ class TRex(pygame.sprite.Sprite):
             pygame.transform.scale(assets.get_sprite('dino2'), (64, 64)).convert_alpha()
         ]
         self.image = self.images[self.index]
-        self.rect = self.image.get_rect(topleft=(0, GameSettings.SCREEN_HEIGHT // 2 + self.image.get_height()))
+        self.rect = self.image.get_rect(topleft=(0, self.ground.rect.top - self.image.get_height()))
         self.mask = pygame.mask.from_surface(self.image)
         self.fall_stop = self.rect.y
-        self.jump_stop = 20
+        self.jump_stop = 100
         self._last_cacti = None
         self.vel = Vector2(2, 0)
         super().__init__(*groups)
 
     def update(self, *args, **kwargs):
-        self.start_animation()
-        # jumping
         if self.is_jumping:
             self.rect.y -= self.dy
             if self.rect.y <= self.jump_stop:
                 self._fall()
 
-        # falling
         elif self.is_falling:
             self.rect.y += self.gravity * self.dy
             if self.rect.y >= self.fall_stop:
                 self._stop()
 
-        # walking animation
         self._animate()
 
     def _animate(self):
@@ -56,7 +54,7 @@ class TRex(pygame.sprite.Sprite):
             self.index = 0
 
     def jump(self):
-        if self.on_ground:  # Check if the TRex is on the ground
+        if self.on_ground:
             self.is_jumping = True
             self.on_ground = False
 
