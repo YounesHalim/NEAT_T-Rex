@@ -1,4 +1,5 @@
 import math
+import sys
 from os.path import dirname, join
 
 import neat
@@ -10,19 +11,19 @@ from game_sys.game_sys import Game
 from game_sys.settings import GameSettings
 from game_sys.ui import UI
 
-gen = -1
+GEN = -1
 
 
 def eval_genomes(genomes, configuration) -> None:
-    global gen
-    gen += 1
+    global GEN
+    GEN += 1
     nets = []
     ge = []
     dinosaurs = []
     game = Game()
     screen, clock, sprites, cacti = game.screen, game.clock, game.sprites, game.cacti
-    ui = UI(sprites, alive=dinosaurs, generation=gen)
-    for genome_id, genome in genomes:
+    ui = UI(sprites, alive=dinosaurs, generation=GEN)
+    for _, genome in genomes:
         net = neat.nn.FeedForwardNetwork.create(genome, configuration)
         nets.append(net)
         dinosaurs.append(TRex(game.sprites))
@@ -36,7 +37,7 @@ def eval_genomes(genomes, configuration) -> None:
             if (event.type == pygame.QUIT
                     or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)):
                 pygame.quit()
-                quit()
+                sys.exit()
 
         if not dinosaurs:
             break
@@ -50,14 +51,11 @@ def eval_genomes(genomes, configuration) -> None:
         for x, trex in enumerate(dinosaurs):
             ge[x].fitness += .05
             obstacle = cacti[cactus_index]
-
-            get_distance = lambda pos1, pos2: math.sqrt(
-                (trex.rect.x - obstacle.rect.midtop[0]) ** 2 + (trex.rect.y - obstacle.rect.midtop[1]) ** 2)
             output = nets[x].activate(
                 (
                     trex.rect.y,
                     abs(obstacle.vel.x),
-                    get_distance((trex.rect.x, trex.rect.y), obstacle.rect.midtop)
+                    math.sqrt((trex.rect.x - obstacle.rect.midtop[0]) ** 2 + (trex.rect.y - obstacle.rect.midtop[1]) ** 2)
                 )
             )
             if output[0] > .5:
@@ -74,7 +72,7 @@ def eval_genomes(genomes, configuration) -> None:
                 if cactus.rect.left < 0:
                     cactus.passed = True
 
-        ui.update_ui(alive=dinosaurs, generation=gen)
+        ui.update_ui(alive=dinosaurs, generation=GEN)
 
         screen.fill(0)
         sprites.draw(screen)
